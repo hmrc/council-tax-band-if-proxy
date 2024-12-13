@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.counciltaxbandifproxy.config
+package uk.gov.hmrc.ccyctbifproxy.controllers
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-
-@Singleton
-class AppConfig @Inject() (config: Configuration) {
-
-  val appName: String = config.get[String]("appName")
-}
+/**
+  * @author Yuriy Tumakha
+  */
+final case class NonJsonBodyException() extends Exception

@@ -1,3 +1,4 @@
 # Add all the application routes to the app.routes file
-->         /council-tax-band-if-proxy              app.Routes
-->         /                          health.Routes
+->         /council-tax-band-if-proxy               app.Routes
+->         /valuations                              valuations.Routes
+->         /                                        health.Routes
