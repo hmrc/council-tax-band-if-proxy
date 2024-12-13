@@ -3,7 +3,7 @@ import uk.gov.hmrc.DefaultBuildSettings.itSettings
 val appName = "council-tax-band-if-proxy"
 
 ThisBuild / scalaVersion := "3.6.2"
-ThisBuild / majorVersion := 1
+ThisBuild / majorVersion := 0
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
