@@ -1,23 +1,20 @@
-import sbt.Setting
+import sbt.{AutoPlugin, Setting}
 import scoverage.ScoverageKeys
 
-object CodeCoverageSettings {
+object CodeCoverageSettings extends AutoPlugin {
 
-  private val excludedPackages: Seq[String] = Seq(
-    "<empty>",
-    "Reverse.*",
-    "uk.gov.hmrc.BuildInfo",
-    "app.*",
-    "prod.*",
-    ".*Routes.*",
-    "testOnly.*",
-    "testOnlyDoNotUseInAppConf.*"
-  )
+  override def trigger = allRequirements
 
-  val settings: Seq[Setting[_]] = Seq(
+  private val excludedPackages: Seq[String] = Seq(".*Reverse.*")
+
+  private val excludedFiles: Seq[String] = Seq(".*Routes.*")
+
+  override lazy val projectSettings: Seq[Setting[?]] = Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
+    ScoverageKeys.coverageExcludedFiles := excludedFiles.mkString(";"),
     ScoverageKeys.coverageMinimumStmtTotal := 100,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
+
 }

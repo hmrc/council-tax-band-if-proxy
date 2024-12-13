@@ -1,0 +1,5 @@
+# CCYCTB-by-BST IF API
+
+GET  /get-properties/:searchType    uk.gov.hmrc.ccyctbifproxy.controllers.ValuationsProxyController.valuationsGetPropertiesSearchTypeGet(searchType)
+GET  /get-property/:id              uk.gov.hmrc.ccyctbifproxy.controllers.ValuationsProxyController.valuationsGetPropertyIdGet(id)
+POST /council-tax-band-challenge    uk.gov.hmrc.ccyctbifproxy.controllers.ValuationsProxyController.valuationsCouncilTaxBandChallengePost()

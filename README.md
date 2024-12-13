@@ -1,8 +1,13 @@
 
 # council-tax-band-if-proxy
 
-This is a placeholder README.md for a new repository
+Proxy service to forward requests from CCYCTB frontend to Integration Framework https://ifs.ws.ibt.hmrc.gov.uk
+
+### Run
+
+`council-tax-band-if-proxy` service must be deployed to `protected` zone to have direct connection to Integration Framework server. 
+
 
 ### License
 
-This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
+This code is open source software licensed under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).
