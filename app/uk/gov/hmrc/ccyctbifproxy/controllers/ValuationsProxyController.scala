@@ -56,19 +56,6 @@ class ValuationsProxyController @Inject() (
     Set(
       "CorrelationId",
       "Content-Type"
-//      "start",
-//      "size",
-//      "searchBy",
-//      "postCode",
-//      "propertyNameOrNumber",
-//      "street",
-//      "town",
-//      "localAuthority",
-//      "localAuthorityReferenceNumber",
-//      "propertyPurpose",
-//      "councilTaxBand",
-//      "bandStatus",
-//      "courtCode"
     )
 
   private val skipResponseHeaders = Set("Content-Type", "Content-Length", "Transfer-Encoding")
