@@ -1,6 +1,8 @@
 
 # council-tax-band-if-proxy
 
+CCYCTB Integration Framework proxy
+
 Proxy service to forward requests from CCYCTB frontend to Integration Framework https://ifs.ws.ibt.hmrc.gov.uk
 
 `council-tax-band-if-proxy` service must be deployed to `protected` zone to have direct connection to Integration Framework server.
