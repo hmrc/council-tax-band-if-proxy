@@ -82,10 +82,10 @@ class ValuationsProxyController @Inject() (
     Option(request.target.queryString).filter(_.nonEmpty).map(s => s"?$s").getOrElse("")
 
   private def forwardRequest(httpVerb: String, url: String)(using request: Request[AnyContent]): Future[Result] = {
-    logger.info(s"$httpVerb $url Request Headers:\n${toPrintableRequestHeaders(request)}")
-
     val headers       = staticHeaders ++ extractHeaders(forwardHeaders)
     val correlationId = request.headers.get("CorrelationId")
+
+    logger.info(s"$httpVerb $url \nCorrelationId: $correlationId \nRequest Headers:\n${toPrintableRequestHeaders(request)}")
 
     // The default HttpReads will wrap the response in an exception and make the body inaccessible
     given responseReads: HttpReads[HttpResponse] = (_, _, response: HttpResponse) => response
