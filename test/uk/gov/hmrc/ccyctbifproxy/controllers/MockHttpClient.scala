@@ -67,7 +67,7 @@ class MockHttpClient @Inject() (
       case anyBody          => throw new UnsupportedOperationException(s"Unsupported body type ${anyBody.getClass.getName}")
     }
 
-  private def mockResponse[A](url: String, status: Int, requestBody: Option[JsValue], headers: Seq[(String, String)]): Future[A] = {
+  private def mockResponse[A](url: String, status: Int, requestBody: Option[JsValue], headers: Seq[(String, String)]): Future[A] =
     if headers.toMap.get("CorrelationId").contains("throwException") then
       Future.failed(GatewayTimeoutException("Fake timeout exception"))
     else
@@ -76,4 +76,3 @@ class MockHttpClient @Inject() (
 
       val httpResponse = HttpResponse(status, body, headers.map(h => (h._1, Seq(h._2))).toMap)
       Future.successful(httpResponse.asInstanceOf[A])
-  }

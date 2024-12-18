@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ccyctbifproxy.connectors
 
-
 import org.apache.pekko.stream.Materializer
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -32,14 +31,13 @@ import uk.gov.hmrc.ccyctbifproxy.controllers.MockHttpClient
 import uk.gov.hmrc.http.GatewayTimeoutException
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
-
 /**
- * @author Yuriy Tumakha
- */
-class IFConnectorSpec  extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite:
+  * @author Yuriy Tumakha
+  */
+class IFConnectorSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite:
 
   private val fakeRequest = FakeRequest()
-  private val ifConnector  = inject[IFConnector]
+  private val ifConnector = inject[IFConnector]
   given mat: Materializer = inject[Materializer]
 
   override def fakeApplication(): Application =
@@ -49,7 +47,7 @@ class IFConnectorSpec  extends AnyFlatSpec with should.Matchers with Injecting w
       .build()
 
   "IFConnector.forwardGetRequest" should "return 200" in {
-    val headers = Seq("Authorization" -> "Bearer XXX")
+    val headers                        = Seq("Authorization" -> "Bearer XXX")
     given request: Request[AnyContent] = FakeRequest("GET", "/").withHeaders(headers*)
 
     val result = ifConnector.forwardGetRequest("http://localhost:8887/valuations/get-properties/Search?start=1&size=20", headers)
@@ -59,7 +57,7 @@ class IFConnectorSpec  extends AnyFlatSpec with should.Matchers with Injecting w
   }
 
   it should "throw exception" in {
-    val headers = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+    val headers                        = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
     given request: Request[AnyContent] = FakeRequest("GET", "/").withHeaders(headers*)
 
     val thrown = intercept[GatewayTimeoutException] {
@@ -70,18 +68,18 @@ class IFConnectorSpec  extends AnyFlatSpec with should.Matchers with Injecting w
   }
 
   "IFConnector.forwardPostRequest" should "return 201" in {
-    val headers = Seq("Authorization" -> "Bearer XXX")
-    val expectedJson        = Json.parse("""{"requestUrl":"http://localhost:8887/valuations/council-tax-band-challenge","requestBody":{"param1":"value1"}}""")
+    val headers                        = Seq("Authorization" -> "Bearer XXX")
+    val expectedJson                   = Json.parse("""{"requestUrl":"http://localhost:8887/valuations/council-tax-band-challenge","requestBody":{"param1":"value1"}}""")
     given request: Request[AnyContent] = fakeRequest.withMethod("POST").withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
 
-    val result              = ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers)
+    val result = ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers)
 
     status(result)        shouldBe CREATED
     contentAsJson(result) shouldBe expectedJson
   }
 
   it should "return 400 for empty body in request" in {
-    val headers = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+    val headers                        = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
     given request: Request[AnyContent] = fakeRequest.withMethod("POST").withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
 
     val thrown = intercept[GatewayTimeoutException] {
@@ -90,4 +88,3 @@ class IFConnectorSpec  extends AnyFlatSpec with should.Matchers with Injecting w
 
     thrown.getMessage shouldBe "Fake timeout exception"
   }
-
