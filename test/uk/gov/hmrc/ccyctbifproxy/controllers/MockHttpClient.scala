@@ -21,7 +21,7 @@ import play.api.Configuration
 import play.api.http.Status.{CREATED, NOT_FOUND, OK}
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
@@ -67,10 +67,12 @@ class MockHttpClient @Inject() (
       case anyBody          => throw new UnsupportedOperationException(s"Unsupported body type ${anyBody.getClass.getName}")
     }
 
-  private def mockResponse[A](url: String, status: Int, requestBody: Option[JsValue], headers: Seq[(String, String)]): Future[A] = {
-    val body = Json.obj("requestUrl" -> url) ++
-      requestBody.fold(Json.obj())(b => Json.obj("requestBody" -> b))
+  private def mockResponse[A](url: String, status: Int, requestBody: Option[JsValue], headers: Seq[(String, String)]): Future[A] =
+    if headers.toMap.get("CorrelationId").contains("throwException") then
+      Future.failed(GatewayTimeoutException("Fake timeout exception"))
+    else
+      val body = Json.obj("requestUrl" -> url) ++
+        requestBody.fold(Json.obj())(b => Json.obj("requestBody" -> b))
 
-    val httpResponse = HttpResponse(status, body, headers.map(h => (h._1, Seq(h._2))).toMap)
-    Future.successful(httpResponse.asInstanceOf[A])
-  }
+      val httpResponse = HttpResponse(status, body, headers.map(h => (h._1, Seq(h._2))).toMap)
+      Future.successful(httpResponse.asInstanceOf[A])

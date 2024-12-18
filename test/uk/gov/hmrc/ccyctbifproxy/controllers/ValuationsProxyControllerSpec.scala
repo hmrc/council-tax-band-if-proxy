@@ -26,6 +26,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
+import uk.gov.hmrc.http.GatewayTimeoutException
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 /**
@@ -52,6 +53,16 @@ class ValuationsProxyControllerSpec extends AnyFlatSpec with should.Matchers wit
     contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-properties/Search?start=1&size=20")
   }
 
+  "GET /valuations/get-properties/Search" should "throw exception" in {
+    val thrown = intercept[GatewayTimeoutException] {
+      await(controller.valuationsGetPropertiesSearchTypeGet("Search")(
+        FakeRequest("GET", "/valuations/get-properties/Search?start=1&size=20")
+          .withHeaders("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+      ))
+    }
+    thrown.getMessage shouldBe "Fake timeout exception"
+  }
+
   "GET /valuations/get-property/7777777" should "return 200" in {
     val result = controller.valuationsGetPropertyIdGet("7777777")(fakeRequest)
 
@@ -64,6 +75,13 @@ class ValuationsProxyControllerSpec extends AnyFlatSpec with should.Matchers wit
 
     status(result)        shouldBe NOT_FOUND
     contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-property/UNKNOWN_ID")
+  }
+
+  "GET /valuations/get-property/TEST_EXCEPTION" should "throw exception" in {
+    val thrown = intercept[GatewayTimeoutException] {
+      await(controller.valuationsGetPropertyIdGet("TEST_EXCEPTION")(fakeRequest.withHeaders("CorrelationId" -> "throwException")))
+    }
+    thrown.getMessage shouldBe "Fake timeout exception"
   }
 
   "POST /valuations/council-tax-band-challenge" should "return 201" in {
