@@ -22,12 +22,12 @@ URL samples:
 
 Run council-tax-band-if-proxy by SM
 
-> sm2 --start COUNCIL_TAX_BAND_IF_PROXY COUNCIL_TAX_BAND_STUBS
+> sm2 --start COUNCIL_TAX_BAND_IF_PROXY COUNCIL_TAX_BAND_STUBS -r
 
 
 or run all CCYCTB services
 
-> sm2 --start VOA_CTI_ACCEPTANCE
+> sm2 --start VOA_CTI_ACCEPTANCE -r
 
 
 ### License

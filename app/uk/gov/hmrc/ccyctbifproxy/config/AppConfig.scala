@@ -21,7 +21,7 @@ import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
+class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig):
 
   val appName: String = config.get[String]("appName")
 
@@ -29,5 +29,3 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val ifBaseUrl: String     = servicesConfig.baseUrl("if")
   val ifToken: String       = config.get[String]("microservice.services.if.token")
   val ifEnvironment: String = config.get[String]("microservice.services.if.environment")
-
-}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.controllers
+package uk.gov.hmrc.ccyctbifproxy.connectors
 
 /**
   * @author Yuriy Tumakha

@@ -16,17 +16,12 @@
 
 package uk.gov.hmrc.ccyctbifproxy.controllers
 
-import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
-import uk.gov.hmrc.http.HttpVerbs.{GET, POST}
-import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.ccyctbifproxy.config.AppConfig
+import uk.gov.hmrc.ccyctbifproxy.connectors.{HeadersHelpers, IFConnector}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author Yuriy Tumakha
@@ -34,12 +29,10 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton()
 class ValuationsProxyController @Inject() (
   appConfig: AppConfig,
-  httpClient: DefaultHttpClient,
+  ifConnector: IFConnector,
   cc: ControllerComponents
-)(using ec: ExecutionContext
 ) extends BackendController(cc)
-  with Logging
-  with HeadersHelpers {
+  with HeadersHelpers:
 
   private val baseUrl                 = s"${appConfig.ifBaseUrl}/valuations"
   private val searchEndpoint          = s"$baseUrl/get-properties/"
@@ -58,64 +51,16 @@ class ValuationsProxyController @Inject() (
       "Content-Type"
     )
 
-  private val skipResponseHeaders = Set("Content-Type", "Content-Length", "Transfer-Encoding")
+  private def requestHeaders(using request: Request[?]) = staticHeaders ++ extractHeaders(forwardHeaders)
 
   def valuationsGetPropertiesSearchTypeGet(searchType: String): Action[AnyContent] = Action.async { implicit request =>
-    forwardGetRequest(searchEndpoint + searchType)
+    ifConnector.forwardGetRequest(searchEndpoint + searchType, requestHeaders)
   }
 
   def valuationsGetPropertyIdGet(id: String): Action[AnyContent] = Action.async { implicit request =>
-    forwardGetRequest(getPropertyEndpoint + id)
+    ifConnector.forwardGetRequest(getPropertyEndpoint + id, requestHeaders)
   }
 
   def valuationsCouncilTaxBandChallengePost(): Action[AnyContent] = Action.async { implicit request =>
-    forwardPostRequest(submitChallengeEndpoint)
+    ifConnector.forwardPostRequest(submitChallengeEndpoint, requestHeaders)
   }
-
-  private def forwardGetRequest(url: String)(using request: Request[AnyContent]): Future[Result] =
-    forwardRequest(GET, url)
-
-  private def forwardPostRequest(url: String)(using request: Request[AnyContent]): Future[Result] =
-    forwardRequest(POST, url)
-
-  private def requestQueryString(using request: Request[AnyContent]): String =
-    Option(request.target.queryString).filter(_.nonEmpty).map(s => s"?$s").getOrElse("")
-
-  private def forwardRequest(httpVerb: String, url: String)(using request: Request[AnyContent]): Future[Result] = {
-    val headers       = staticHeaders ++ extractHeaders(forwardHeaders)
-    val correlationId = request.headers.get("CorrelationId")
-
-    logger.info(s"$httpVerb $url \nCorrelationId: $correlationId \nRequest Headers:\n${toPrintableRequestHeaders(request)}")
-
-    // The default HttpReads will wrap the response in an exception and make the body inaccessible
-    given responseReads: HttpReads[HttpResponse] = (_, _, response: HttpResponse) => response
-
-    val result =
-      if httpVerb == GET then
-        httpClient.GET[HttpResponse](url + requestQueryString, Seq.empty, headers)
-      else
-        request.body.asJson match {
-          case Some(json) => httpClient.POST[JsValue, HttpResponse](url, json, headers)
-          case None       => Future.failed(NonJsonBodyException())
-        }
-
-    result.map { response =>
-      val body       = response.body
-      val logMessage = s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)} \nBODY: $body"
-
-      if response.status == OK || response.status == CREATED then
-        logger.info(logMessage)
-      else
-        logger.info(logMessage)
-        logger.warn(s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)}")
-
-      val responseHeaders = headersMapToSeq(response.headers).filter(h => !skipResponseHeaders.exists(_.equalsIgnoreCase(h._1))) :+ "API_URL" -> url
-
-      Status(response.status)(body)
-        .withHeaders(responseHeaders*)
-    }.recover {
-      case _: NonJsonBodyException => BadRequest(Json.obj("statusCode" -> BAD_REQUEST, "message" -> "JSON body is expected in request"))
-    }
-  }
-
-}

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.controllers
+package uk.gov.hmrc.ccyctbifproxy.connectors
 
-import play.api.mvc.{Request, RequestHeader}
+import play.api.mvc.Request
 import uk.gov.hmrc.http.HttpResponse
 
 /**
   * @author Yuriy Tumakha
   */
-trait HeadersHelpers {
+trait HeadersHelpers:
 
   def extractHeaders(include: Set[String])(using request: Request[?]): Seq[(String, String)] =
     request.headers.headers.filter(h => include.exists(_.equalsIgnoreCase(h._1)))
@@ -33,10 +33,5 @@ trait HeadersHelpers {
   def toPrintableResponseHeaders(httpResponse: HttpResponse): String =
     toPrintableHeaders(headersMapToSeq(httpResponse.headers))
 
-  def toPrintableRequestHeaders(httpRequest: RequestHeader): String =
-    toPrintableHeaders(httpRequest.headers.headers)
-
   private def toPrintableHeaders(headers: Seq[(String, String)]): String =
     headers.map(h => s"${h._1}: ${h._2}").mkString(";\n")
-
-}
