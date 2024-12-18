@@ -106,7 +106,8 @@ class ValuationsProxyController @Inject() (
       if response.status == OK || response.status == CREATED then
         logger.info(logMessage)
       else
-        logger.warn(logMessage)
+        logger.info(logMessage)
+        logger.warn(s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)}")
 
       val responseHeaders = headersMapToSeq(response.headers).filter(h => !skipResponseHeaders.exists(_.equalsIgnoreCase(h._1))) :+ "API_URL" -> url
 
