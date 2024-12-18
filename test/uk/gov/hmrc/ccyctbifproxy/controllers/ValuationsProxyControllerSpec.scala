@@ -31,7 +31,7 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 /**
   * @author Yuriy Tumakha
   */
-class ValuationsProxyControllerSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite {
+class ValuationsProxyControllerSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite:
 
   private val fakeRequest = FakeRequest()
   private val controller  = inject[ValuationsProxyController]
@@ -83,5 +83,3 @@ class ValuationsProxyControllerSpec extends AnyFlatSpec with should.Matchers wit
     status(result)        shouldBe BAD_REQUEST
     contentAsJson(result) shouldBe expectedJson
   }
-
-}

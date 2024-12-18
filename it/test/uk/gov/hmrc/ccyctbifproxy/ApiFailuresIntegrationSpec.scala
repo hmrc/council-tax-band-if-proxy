@@ -26,13 +26,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, writeableOf_String}
 import play.api.test.Injecting
 
-class ApiFailuresIntegrationSpec
-  extends AnyFlatSpec
-  with should.Matchers
-  with ScalaFutures
-  with IntegrationPatience
-  with Injecting
-  with GuiceOneServerPerSuite {
+class ApiFailuresIntegrationSpec extends AnyFlatSpec with should.Matchers with ScalaFutures with IntegrationPatience with Injecting with GuiceOneServerPerSuite:
 
   private val wsClient           = inject[WSClient]
   private val baseUrl            = s"http://localhost:$port"
@@ -76,5 +70,3 @@ class ApiFailuresIntegrationSpec
 
     response.status shouldBe NOT_FOUND
   }
-
-}

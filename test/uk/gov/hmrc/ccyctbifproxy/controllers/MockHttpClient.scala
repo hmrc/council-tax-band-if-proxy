@@ -37,7 +37,7 @@ class MockHttpClient @Inject() (
   httpAuditing: HttpAuditing,
   override val wsClient: WSClient,
   override protected val actorSystem: ActorSystem
-) extends DefaultHttpClient(config, httpAuditing, wsClient, actorSystem) {
+) extends DefaultHttpClient(config, httpAuditing, wsClient, actorSystem):
 
   override def GET[A](
     url: String,
@@ -74,5 +74,3 @@ class MockHttpClient @Inject() (
     val httpResponse = HttpResponse(status, body, headers.map(h => (h._1, Seq(h._2))).toMap)
     Future.successful(httpResponse.asInstanceOf[A])
   }
-
-}

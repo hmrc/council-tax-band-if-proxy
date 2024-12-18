@@ -24,7 +24,7 @@ import play.api.test.Injecting
 /**
   * @author Yuriy Tumakha
   */
-class AppConfigSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite {
+class AppConfigSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite:
 
   private val appConfig = inject[AppConfig]
 
@@ -37,5 +37,3 @@ class AppConfigSpec extends AnyFlatSpec with should.Matchers with Injecting with
     appConfig.ifToken       shouldBe "auth_token"
     appConfig.ifEnvironment shouldBe "ist0"
   }
-
-}
