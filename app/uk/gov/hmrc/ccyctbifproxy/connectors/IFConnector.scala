@@ -30,6 +30,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
+  * Integration Framework connector.
+  *
   * @author Yuriy Tumakha
   */
 class IFConnector @Inject() (
