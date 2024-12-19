@@ -76,13 +76,12 @@ class IFConnector @Inject() (
 
     result.map { response =>
       val body       = response.body
-      val logMessage = s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)} \nBODY: $body"
+      val logMessage = s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)}"
 
       if response.status == OK || response.status == CREATED then
         logger.info(logMessage)
       else
-        logger.info(logMessage)
-        logger.warn(s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)}")
+        logger.warn(logMessage)
 
       val responseHeaders = headersMapToSeq(response.headers).filter(h => !skipResponseHeaders.exists(_.equalsIgnoreCase(h._1))) :+ "API_URL" -> url
 
