@@ -7,6 +7,10 @@ Proxy service to forward requests from CCYCTB frontend to Integration Framework 
 
 `council-tax-band-if-proxy` service must be deployed to `protected` zone to have direct connection to Integration Framework server.
 
+## Running CCYCTB on your local machine
+
+https://confluence.tools.tax.service.gov.uk/display/VOAO/Check+and+Challenge+Your+Council+Tax+Band+%28CCYCTB%29+on+your+local+machine
+
 ## Run the service
 
 Run council-tax-band-if-proxy locally on default port 8882
