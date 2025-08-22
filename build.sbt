@@ -2,7 +2,7 @@ import uk.gov.hmrc.DefaultBuildSettings.itSettings
 
 val appName = "council-tax-band-if-proxy"
 
-ThisBuild / scalaVersion := "3.7.0"
+ThisBuild / scalaVersion := "3.7.2"
 ThisBuild / majorVersion := 0
 
 lazy val microservice = Project(appName, file("."))
@@ -13,6 +13,7 @@ lazy val microservice = Project(appName, file("."))
     maintainer := "voa.service.optimisation@digital.hmrc.gov.uk",
     scalacOptions += "-Wconf:src=routes/.*:s",
     scalacOptions += "-Wconf:msg=Flag .* set repeatedly:s",
+    scalacOptions += "-feature",
     javaOptions += "-XX:+EnableDynamicAgentLoading"
   )
 
