@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.ws.WSBodyReadables.readableAsString
 import play.api.libs.ws.WSClient
 import play.api.test.Injecting
 
@@ -65,8 +66,8 @@ class ApiIntegrationSpec
         .get()
         .futureValue
 
-    response.body.toString shouldBe searchResults
-    response.status        shouldBe OK
+    response.body   shouldBe searchResults
+    response.status shouldBe OK
 
     wireMockServer.verify(getRequestedFor(urlEqualTo(searchPath)))
   }
@@ -88,8 +89,8 @@ class ApiIntegrationSpec
         .get()
         .futureValue
 
-    response.body.toString shouldBe propertyDetails
-    response.status        shouldBe OK
+    response.body   shouldBe propertyDetails
+    response.status shouldBe OK
 
     wireMockServer.verify(getRequestedFor(urlEqualTo(getPropertyPath)))
   }
