@@ -2,7 +2,7 @@ import uk.gov.hmrc.DefaultBuildSettings.{itSettings, targetJvm}
 
 val appName = "council-tax-band-if-proxy"
 
-ThisBuild / scalaVersion := "3.7.4" // 3.8.1 - doesn't support jvm 11
+ThisBuild / scalaVersion := "3.7.4" // 3.8.1 - doesn't support jvm-11
 ThisBuild / majorVersion := 0
 
 val commonSettings = Seq(
