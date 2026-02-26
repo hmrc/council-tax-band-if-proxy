@@ -69,10 +69,9 @@ class IFConnector @Inject() (
       if httpVerb == GET then
         httpClient.GET[HttpResponse](url + requestQueryString, Seq.empty, headers)
       else
-        request.body.asJson match {
+        request.body.asJson match
           case Some(json) => httpClient.POST[JsValue, HttpResponse](url, json, headers)
           case None       => Future.failed(NonJsonBodyException())
-        }
 
     result.map { response =>
       val body       = response.body

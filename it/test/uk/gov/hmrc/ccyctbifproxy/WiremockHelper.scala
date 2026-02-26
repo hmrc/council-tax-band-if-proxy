@@ -23,7 +23,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 /**
   * @author Yuriy Tumakha
   */
-trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
+trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach:
   this: Suite =>
 
   val wireMockServer = new WireMockServer(WireMockConfiguration
@@ -32,14 +32,10 @@ trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   wireMockServer.start()
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     wireMockServer.resetAll()
     super.beforeEach()
-  }
 
-  override def afterAll(): Unit = {
+  override def afterAll(): Unit =
     super.afterAll()
     wireMockServer.stop()
-  }
-
-}
