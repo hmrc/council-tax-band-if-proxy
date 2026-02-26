@@ -64,7 +64,7 @@ class MockHttpClient @Inject() (
   ): Future[O] =
     body match
       case jsValue: JsValue => mockResponse(url, CREATED, Some(jsValue), headers)
-      case anyBody          => throw new UnsupportedOperationException(s"Unsupported body type ${anyBody.getClass.getName}")
+      case anyBody          => throw UnsupportedOperationException(s"Unsupported body type ${anyBody.getClass.getName}")
 
   private def mockResponse[A](url: String, status: Int, requestBody: Option[JsValue], headers: Seq[(String, String)]): Future[A] =
     if headers.toMap.get("CorrelationId").contains("throwException") then
