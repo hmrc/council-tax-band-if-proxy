@@ -16,27 +16,23 @@
 
 package uk.gov.hmrc.ccyctbifproxy.controllers
 
-import org.apache.pekko.stream.Materializer
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.http.GatewayTimeoutException
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.vo.unit.test.BaseAppSpec
 
 /**
   * @author Yuriy Tumakha
   */
-class ValuationsProxyControllerSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite:
+class ValuationsProxyControllerSpec extends BaseAppSpec:
 
-  private val fakeRequest = FakeRequest()
-  private val controller  = inject[ValuationsProxyController]
-  given mat: Materializer = inject[Materializer]
+  private val controller = inject[ValuationsProxyController]
+  // given mat: Materializer = inject[Materializer]
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
@@ -44,60 +40,70 @@ class ValuationsProxyControllerSpec extends AnyFlatSpec with should.Matchers wit
       .overrides(bind[DefaultHttpClient].to[MockHttpClient])
       .build()
 
-  "GET /valuations/get-properties/Search" should "return 200" in {
-    val result = controller.valuationsGetPropertiesSearchTypeGet("Search")(
-      FakeRequest("GET", "/valuations/get-properties/Search?start=1&size=20").withHeaders("Authorization" -> "Bearer XXX")
-    )
+  "GET /valuations/get-properties/Search" should {
+    "return 200" in {
+      val result = controller.valuationsGetPropertiesSearchTypeGet("Search")(
+        FakeRequest("GET", "/valuations/get-properties/Search?start=1&size=20").withHeaders("Authorization" -> "Bearer XXX")
+      )
 
-    status(result)        shouldBe OK
-    contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-properties/Search?start=1&size=20")
-  }
-
-  "GET /valuations/get-properties/Search" should "throw exception" in {
-    val thrown = intercept[GatewayTimeoutException] {
-      await(controller.valuationsGetPropertiesSearchTypeGet("Search")(
-        FakeRequest("GET", "/valuations/get-properties/Search?start=1&size=20")
-          .withHeaders("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
-      ))
+      status(result)        shouldBe OK
+      contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-properties/Search?start=1&size=20")
     }
-    thrown.getMessage shouldBe "Fake timeout exception"
-  }
 
-  "GET /valuations/get-property/7777777" should "return 200" in {
-    val result = controller.valuationsGetPropertyIdGet("7777777")(fakeRequest)
-
-    status(result)        shouldBe OK
-    contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-property/7777777")
-  }
-
-  "GET /valuations/get-property/UNKNOWN_ID" should "return 404 for UNKNOWN_ID" in {
-    val result = controller.valuationsGetPropertyIdGet("UNKNOWN_ID")(fakeRequest)
-
-    status(result)        shouldBe NOT_FOUND
-    contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-property/UNKNOWN_ID")
-  }
-
-  "GET /valuations/get-property/TEST_EXCEPTION" should "throw exception" in {
-    val thrown = intercept[GatewayTimeoutException] {
-      await(controller.valuationsGetPropertyIdGet("TEST_EXCEPTION")(fakeRequest.withHeaders("CorrelationId" -> "throwException")))
+    "throw exception" in {
+      val thrown = intercept[GatewayTimeoutException] {
+        await(controller.valuationsGetPropertiesSearchTypeGet("Search")(
+          FakeRequest("GET", "/valuations/get-properties/Search?start=1&size=20")
+            .withHeaders("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+        ))
+      }
+      thrown.getMessage shouldBe "Fake timeout exception"
     }
-    thrown.getMessage shouldBe "Fake timeout exception"
   }
 
-  "POST /valuations/council-tax-band-challenge" should "return 201" in {
-    val requestWithJsonBody = fakeRequest.withMethod("POST").withJsonBody(Json.obj("param1" -> "value1"))
-    val expectedJson        = Json.parse("""{"requestUrl":"http://localhost:8887/valuations/council-tax-band-challenge","requestBody":{"param1":"value1"}}""")
-    val result              = controller.valuationsCouncilTaxBandChallengePost()(requestWithJsonBody)
+  "GET /valuations/get-property/7777777" should {
+    "return 200" in {
+      val result = controller.valuationsGetPropertyIdGet("7777777")(getRequest)
 
-    status(result)        shouldBe CREATED
-    contentAsJson(result) shouldBe expectedJson
+      status(result)        shouldBe OK
+      contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-property/7777777")
+    }
   }
 
-  "POST /valuations/council-tax-band-challenge" should "return 400 for empty body in request" in {
-    val requestEmptyBody = fakeRequest.withMethod("POST").withBody("")
-    val expectedJson     = Json.parse("""{"statusCode":400,"message":"JSON body is expected in request"}""")
-    val result           = controller.valuationsCouncilTaxBandChallengePost()(requestEmptyBody)
+  "GET /valuations/get-property/UNKNOWN_ID" should {
+    "return 404 for UNKNOWN_ID" in {
+      val result = controller.valuationsGetPropertyIdGet("UNKNOWN_ID")(getRequest)
 
-    status(result)        shouldBe BAD_REQUEST
-    contentAsJson(result) shouldBe expectedJson
+      status(result)        shouldBe NOT_FOUND
+      contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-property/UNKNOWN_ID")
+    }
+  }
+
+  "GET /valuations/get-property/TEST_EXCEPTION" should {
+    "throw exception" in {
+      val thrown = intercept[GatewayTimeoutException] {
+        await(controller.valuationsGetPropertyIdGet("TEST_EXCEPTION")(getRequest.withHeaders("CorrelationId" -> "throwException")))
+      }
+      thrown.getMessage shouldBe "Fake timeout exception"
+    }
+  }
+
+  "POST /valuations/council-tax-band-challenge" should {
+    "return 201" in {
+      val requestWithJsonBody = postRequest.withJsonBody(Json.obj("param1" -> "value1"))
+      val expectedJson        = Json.parse("""{"requestUrl":"http://localhost:8887/valuations/council-tax-band-challenge","requestBody":{"param1":"value1"}}""")
+      val result              = controller.valuationsCouncilTaxBandChallengePost()(requestWithJsonBody)
+
+      status(result)        shouldBe CREATED
+      contentAsJson(result) shouldBe expectedJson
+    }
+
+    "return 400 for empty body in request" in {
+      val requestEmptyBody = postRequest
+      val expectedJson     = Json.parse("""{"statusCode":400,"message":"JSON body is expected in request"}""")
+      val result           = controller.valuationsCouncilTaxBandChallengePost()(requestEmptyBody)
+
+      status(result)        shouldBe BAD_REQUEST
+      contentAsJson(result) shouldBe expectedJson
+    }
   }

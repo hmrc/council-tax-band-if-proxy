@@ -17,80 +17,69 @@
 package uk.gov.hmrc.ccyctbifproxy
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSBodyReadables.readableAsString
-import play.api.libs.ws.WSClient
-import play.api.test.Injecting
+import uk.gov.hmrc.vo.integration.test.BaseServerSpec
 
-class ApiIntegrationSpec
-  extends AnyFlatSpec
-  with should.Matchers
-  with ScalaFutures
-  with IntegrationPatience
-  with WiremockHelper
-  with Injecting
-  with GuiceOneServerPerSuite:
+class ApiIntegrationSpec extends BaseServerSpec:
 
-  private val wsClient        = inject[WSClient]
-  private val baseUrl         = s"http://localhost:$port"
   private val searchPath      = "/valuations/get-properties/Search?postCodeStandardSearch=M11%201AE"
-  private val searchUrl       = s"$baseUrl$searchPath"
   private val getPropertyPath = "/valuations/get-property/123"
-  private val getPropertyUrl  = s"$baseUrl$getPropertyPath"
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
-      .configure("metrics.enabled" -> false, "microservice.services.if.port" -> wireMockServer.port())
+      .configure(
+        "metrics.enabled"               -> false,
+        "microservice.services.if.port" -> wireMockServer.port
+      )
       .build()
 
-  "GET /valuations/get-properties/Search" should "return OK" in {
-    val searchResults = "{search results}"
+  "GET /valuations/get-properties/Search" should {
+    "return OK" in {
+      val searchResults = "{search results}"
 
-    wireMockServer.stubFor(
-      get(urlEqualTo(searchPath))
-        .willReturn(
-          aResponse().withStatus(OK)
-            .withBody(searchResults)
-        )
-    )
+      wireMockServer.stubFor(
+        get(urlEqualTo(searchPath))
+          .willReturn(
+            aResponse().withStatus(OK)
+              .withBody(searchResults)
+          )
+      )
 
-    val response =
-      wsClient
-        .url(searchUrl)
-        .get()
-        .futureValue
+      val response =
+        wsUrl(searchPath)
+          .get()
+          .futureValue
 
-    response.body   shouldBe searchResults
-    response.status shouldBe OK
+      response.body   shouldBe searchResults
+      response.status shouldBe OK
 
-    wireMockServer.verify(getRequestedFor(urlEqualTo(searchPath)))
+      wireMockServer.verify(getRequestedFor(urlEqualTo(searchPath)))
+    }
   }
 
-  "GET /valuations/get-property/123" should "return OK" in {
-    val propertyDetails = "{property details}"
+  "GET /valuations/get-property/123" should {
+    "return OK" in {
+      val propertyDetails = "{property details}"
 
-    wireMockServer.stubFor(
-      get(urlEqualTo(getPropertyPath))
-        .willReturn(
-          aResponse().withStatus(OK)
-            .withBody(propertyDetails)
-        )
-    )
+      wireMockServer.stubFor(
+        get(urlEqualTo(getPropertyPath))
+          .willReturn(
+            aResponse().withStatus(OK)
+              .withBody(propertyDetails)
+          )
+      )
 
-    val response =
-      wsClient
-        .url(getPropertyUrl)
-        .get()
-        .futureValue
+      val response =
+        wsUrl(getPropertyPath)
+          .get()
+          .futureValue
 
-    response.body   shouldBe propertyDetails
-    response.status shouldBe OK
+      response.body   shouldBe propertyDetails
+      response.status shouldBe OK
 
-    wireMockServer.verify(getRequestedFor(urlEqualTo(getPropertyPath)))
+      wireMockServer.verify(getRequestedFor(urlEqualTo(getPropertyPath)))
+    }
   }

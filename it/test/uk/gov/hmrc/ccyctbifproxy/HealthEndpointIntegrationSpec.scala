@@ -16,19 +16,11 @@
 
 package uk.gov.hmrc.ccyctbifproxy
 
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.ws.WSClient
-import play.api.test.Injecting
+import uk.gov.hmrc.vo.integration.test.BaseServerSpec
 
-class HealthEndpointIntegrationSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with Injecting with GuiceOneServerPerSuite:
-
-  private val wsClient = inject[WSClient]
-  private val baseUrl  = s"http://localhost:$port"
+class HealthEndpointIntegrationSpec extends BaseServerSpec:
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
@@ -38,8 +30,7 @@ class HealthEndpointIntegrationSpec extends AnyWordSpec with Matchers with Scala
   "service health endpoint" should {
     "respond with 200 status" in {
       val response =
-        wsClient
-          .url(s"$baseUrl/ping/ping")
+        wsUrl("/ping/ping")
           .get()
           .futureValue
 

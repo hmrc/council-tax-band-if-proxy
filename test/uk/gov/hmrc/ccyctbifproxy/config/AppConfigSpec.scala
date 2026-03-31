@@ -16,24 +16,23 @@
 
 package uk.gov.hmrc.ccyctbifproxy.config
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.test.Injecting
+import uk.gov.hmrc.vo.unit.test.BaseAppSpec
 
 /**
   * @author Yuriy Tumakha
   */
-class AppConfigSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite:
+class AppConfigSpec extends BaseAppSpec:
 
   private val appConfig = inject[AppConfig]
 
-  "AppConfig" should "provide correct appName" in {
-    appConfig.appName shouldBe "council-tax-band-if-proxy"
-  }
+  "AppConfig" should {
+    "provide correct appName" in {
+      appConfig.appName shouldBe "council-tax-band-if-proxy"
+    }
 
-  it should "provide Integration Framework local config" in {
-    appConfig.ifBaseUrl     shouldBe "http://localhost:8887"
-    appConfig.ifToken       shouldBe "auth_token"
-    appConfig.ifEnvironment shouldBe "ist0"
+    "provide Integration Framework local config" in {
+      appConfig.ifBaseUrl     shouldBe "http://localhost:8887"
+      appConfig.ifToken       shouldBe "auth_token"
+      appConfig.ifEnvironment shouldBe "ist0"
+    }
   }

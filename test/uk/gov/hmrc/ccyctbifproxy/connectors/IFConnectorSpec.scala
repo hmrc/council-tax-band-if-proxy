@@ -16,29 +16,23 @@
 
 package uk.gov.hmrc.ccyctbifproxy.connectors
 
-import org.apache.pekko.stream.Materializer
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.Helpers.*
-import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.ccyctbifproxy.controllers.MockHttpClient
 import uk.gov.hmrc.http.GatewayTimeoutException
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.vo.unit.test.BaseAppSpec
 
 /**
   * @author Yuriy Tumakha
   */
-class IFConnectorSpec extends AnyFlatSpec with should.Matchers with Injecting with GuiceOneAppPerSuite:
+class IFConnectorSpec extends BaseAppSpec:
 
-  private val fakeRequest = FakeRequest()
   private val ifConnector = inject[IFConnector]
-  given mat: Materializer = inject[Materializer]
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
@@ -46,45 +40,53 @@ class IFConnectorSpec extends AnyFlatSpec with should.Matchers with Injecting wi
       .overrides(bind[DefaultHttpClient].to[MockHttpClient])
       .build()
 
-  "IFConnector.forwardGetRequest" should "return 200" in {
-    val headers                        = Seq("Authorization" -> "Bearer XXX")
-    given request: Request[AnyContent] = FakeRequest("GET", "/").withHeaders(headers*)
+  "IFConnector.forwardGetRequest" should {
+    "return 200" in {
+      val headers = Seq("Authorization" -> "Bearer XXX")
 
-    val result = ifConnector.forwardGetRequest("http://localhost:8887/valuations/get-properties/Search?start=1&size=20", headers)
+      given request: Request[AnyContent] = getRequest.withHeaders(headers*)
 
-    status(result)        shouldBe OK
-    contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-properties/Search?start=1&size=20")
-  }
+      val result = ifConnector.forwardGetRequest("http://localhost:8887/valuations/get-properties/Search?start=1&size=20", headers)
 
-  it should "throw exception" in {
-    val headers                        = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
-    given request: Request[AnyContent] = FakeRequest("GET", "/").withHeaders(headers*)
-
-    val thrown = intercept[GatewayTimeoutException] {
-      await(ifConnector.forwardGetRequest("http://localhost:8887/valuations/get-properties/Search?start=1&size=20", headers))
+      status(result)        shouldBe OK
+      contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-properties/Search?start=1&size=20")
     }
 
-    thrown.getMessage shouldBe "Fake timeout exception"
+    "throw exception" in {
+      val headers = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+
+      given request: Request[AnyContent] = getRequest.withHeaders(headers*)
+
+      val thrown = intercept[GatewayTimeoutException] {
+        await(ifConnector.forwardGetRequest("http://localhost:8887/valuations/get-properties/Search?start=1&size=20", headers))
+      }
+
+      thrown.getMessage shouldBe "Fake timeout exception"
+    }
   }
 
-  "IFConnector.forwardPostRequest" should "return 201" in {
-    val headers                        = Seq("Authorization" -> "Bearer XXX")
-    val expectedJson                   = Json.parse("""{"requestUrl":"http://localhost:8887/valuations/council-tax-band-challenge","requestBody":{"param1":"value1"}}""")
-    given request: Request[AnyContent] = fakeRequest.withMethod("POST").withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
+  "IFConnector.forwardPostRequest" should {
+    "return 201" in {
+      val headers      = Seq("Authorization" -> "Bearer XXX")
+      val expectedJson = Json.parse("""{"requestUrl":"http://localhost:8887/valuations/council-tax-band-challenge","requestBody":{"param1":"value1"}}""")
 
-    val result = ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers)
+      given request: Request[AnyContent] = postRequest.withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
 
-    status(result)        shouldBe CREATED
-    contentAsJson(result) shouldBe expectedJson
-  }
+      val result = ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers)
 
-  it should "return 400 for empty body in request" in {
-    val headers                        = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
-    given request: Request[AnyContent] = fakeRequest.withMethod("POST").withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
-
-    val thrown = intercept[GatewayTimeoutException] {
-      await(ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers))
+      status(result)        shouldBe CREATED
+      contentAsJson(result) shouldBe expectedJson
     }
 
-    thrown.getMessage shouldBe "Fake timeout exception"
+    "return 400 for empty body in request" in {
+      val headers = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+
+      given request: Request[AnyContent] = postRequest.withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
+
+      val thrown = intercept[GatewayTimeoutException] {
+        await(ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers))
+      }
+
+      thrown.getMessage shouldBe "Fake timeout exception"
+    }
   }
