@@ -17,27 +17,23 @@
 package uk.gov.hmrc.vo.ccyctb.ifproxy.connectors
 
 import play.api.Application
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.Helpers.*
-import uk.gov.hmrc.http.GatewayTimeoutException
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.vo.ccyctb.ifproxy.controllers.MockHttpClient
+import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier}
 import uk.gov.hmrc.vo.unit.test.BaseAppSpec
+
+import java.net.URL
 
 /**
   * @author Yuriy Tumakha
   */
 class IFConnectorSpec extends BaseAppSpec:
 
-  private val ifConnector = inject[IFConnector]
-
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .configure("metrics.enabled" -> false)
-      .overrides(bind[DefaultHttpClient].to[MockHttpClient])
       .build()
 
   "IFConnector.forwardGetRequest" should {
@@ -46,47 +42,72 @@ class IFConnectorSpec extends BaseAppSpec:
 
       given request: Request[AnyContent] = getRequest.withHeaders(headers*)
 
+      val response    = Json.obj("status" -> "OK")
+      val httpClient  = httpClientMock(responseBody = response)
+      val ifConnector = IFConnector(httpClient)
+
       val result = ifConnector.forwardGetRequest("http://localhost:8887/valuations/get-properties/Search?start=1&size=20", headers)
 
       status(result)        shouldBe OK
-      contentAsJson(result) shouldBe Json.obj("requestUrl" -> "http://localhost:8887/valuations/get-properties/Search?start=1&size=20")
+      contentAsJson(result) shouldBe response
+
+      verify(httpClient)
+        .get(any[URL])(using any[HeaderCarrier])
     }
 
     "throw exception" in {
-      val headers = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+      val headers = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "825b6aec-e592-4b52-92a9-940cc54cc66d")
 
       given request: Request[AnyContent] = getRequest.withHeaders(headers*)
+
+      val httpClient  = httpClientFailedMock(returnFailure = GatewayTimeoutException("Fake timeout exception"))
+      val ifConnector = IFConnector(httpClient)
 
       val thrown = intercept[GatewayTimeoutException] {
         await(ifConnector.forwardGetRequest("http://localhost:8887/valuations/get-properties/Search?start=1&size=20", headers))
       }
 
       thrown.getMessage shouldBe "Fake timeout exception"
+
+      verify(httpClient)
+        .get(any[URL])(using any[HeaderCarrier])
     }
   }
 
   "IFConnector.forwardPostRequest" should {
     "return 201" in {
       val headers      = Seq("Authorization" -> "Bearer XXX")
-      val expectedJson = Json.parse("""{"requestUrl":"http://localhost:8887/valuations/council-tax-band-challenge","requestBody":{"param1":"value1"}}""")
+      val expectedJson = Json.obj("status" -> "CREATED")
 
       given request: Request[AnyContent] = postRequest.withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
+
+      val httpClient  = httpClientMock(POST, responseBody = expectedJson, responseStatus = CREATED)
+      val ifConnector = IFConnector(httpClient)
 
       val result = ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers)
 
       status(result)        shouldBe CREATED
       contentAsJson(result) shouldBe expectedJson
+
+      verify(httpClient)
+        .post(any[URL])(using any[HeaderCarrier])
     }
 
     "return 400 for empty body in request" in {
-      val headers = Seq("Authorization" -> "Bearer XXX", "CorrelationId" -> "throwException")
+      val headers = Seq("Authorization" -> "Bearer XXX")
 
       given request: Request[AnyContent] = postRequest.withHeaders(headers*).withJsonBody(Json.obj("param1" -> "value1"))
+
+      val httpClient  = httpClientFailedMock(POST, returnFailure = GatewayTimeoutException("Fake timeout exception"))
+      val ifConnector = IFConnector(httpClient)
 
       val thrown = intercept[GatewayTimeoutException] {
         await(ifConnector.forwardPostRequest("http://localhost:8887/valuations/council-tax-band-challenge", headers))
       }
 
       thrown.getMessage shouldBe "Fake timeout exception"
+
+      verify(httpClient)
+        .post(any[URL])(using any[HeaderCarrier])
     }
   }
