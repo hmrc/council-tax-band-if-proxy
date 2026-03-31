@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.connectors
+package uk.gov.hmrc.vo.ccyctb.ifproxy.connectors
 
 import play.api.Application
 import play.api.inject.bind
@@ -22,9 +22,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.Helpers.*
-import uk.gov.hmrc.ccyctbifproxy.controllers.MockHttpClient
 import uk.gov.hmrc.http.GatewayTimeoutException
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.vo.ccyctb.ifproxy.controllers.MockHttpClient
 import uk.gov.hmrc.vo.unit.test.BaseAppSpec
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.controllers
+package uk.gov.hmrc.vo.ccyctb.ifproxy.controllers
 
 import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration

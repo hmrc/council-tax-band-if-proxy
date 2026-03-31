@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.config
+package uk.gov.hmrc.vo.ccyctb.ifproxy.config
 
 import uk.gov.hmrc.vo.unit.test.BaseAppSpec
 

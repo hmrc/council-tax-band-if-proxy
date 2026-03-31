@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.controllers
+package uk.gov.hmrc.vo.ccyctb.ifproxy.controllers
 
 import play.api.mvc.*
-import uk.gov.hmrc.ccyctbifproxy.config.AppConfig
-import uk.gov.hmrc.ccyctbifproxy.connectors.{HeadersHelpers, IFConnector}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.vo.ccyctb.ifproxy.config.AppConfig
+import uk.gov.hmrc.vo.ccyctb.ifproxy.connectors.{HeadersHelpers, IFConnector}
 
 import javax.inject.{Inject, Singleton}
 

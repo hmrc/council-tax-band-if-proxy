@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy
+package uk.gov.hmrc.vo.ccyctb.ifproxy
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import play.api.Application

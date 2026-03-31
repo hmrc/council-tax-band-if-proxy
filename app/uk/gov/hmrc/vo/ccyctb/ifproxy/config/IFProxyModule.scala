@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.connectors
+package uk.gov.hmrc.vo.ccyctb.ifproxy.config
 
-/**
-  * @author Yuriy Tumakha
-  */
-final case class NonJsonBodyException() extends Exception
+import play.api.{Configuration, Environment}
+import play.api.inject.{Binding, Module}
+
+class IFProxyModule extends Module:
+
+  override def bindings(env: Environment, conf: Configuration): Seq[Binding[?]] = Seq(
+    bind[AppConfig].toSelf.eagerly()
+  )

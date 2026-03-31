@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy
+package uk.gov.hmrc.vo.ccyctb.ifproxy
 
 import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}

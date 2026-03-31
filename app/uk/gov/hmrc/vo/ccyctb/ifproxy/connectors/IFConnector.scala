@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.connectors
+package uk.gov.hmrc.vo.ccyctb.ifproxy.connectors
 
 import play.api.Logging
 import play.api.http.Status.{BAD_REQUEST, CREATED, OK}
