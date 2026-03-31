@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.ccyctbifproxy.config
 
-import com.google.inject.AbstractModule
+import play.api.{Configuration, Environment}
+import play.api.inject.{Binding, Module}
 
-class Module extends AbstractModule:
+class IFProxyModule extends Module:
 
-  override def configure(): Unit =
-    bind(classOf[AppConfig]).asEagerSingleton()
+  override def bindings(env: Environment, conf: Configuration): Seq[Binding[?]] = Seq(
+    bind[AppConfig].toSelf.eagerly()
+  )
