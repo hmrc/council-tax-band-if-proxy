@@ -14,11 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.config
+package uk.gov.hmrc.vo.ccyctb.ifproxy.config
 
-import com.google.inject.AbstractModule
+import uk.gov.hmrc.vo.unit.test.BaseAppSpec
 
-class Module extends AbstractModule:
+/**
+  * @author Yuriy Tumakha
+  */
+class AppConfigSpec extends BaseAppSpec:
 
-  override def configure(): Unit =
-    bind(classOf[AppConfig]).asEagerSingleton()
+  private val appConfig = inject[AppConfig]
+
+  "AppConfig" should {
+    "provide correct appName" in {
+      appConfig.appName shouldBe "council-tax-band-if-proxy"
+    }
+
+    "provide Integration Framework local config" in {
+      appConfig.ifBaseUrl     shouldBe "http://localhost:8887"
+      appConfig.ifToken       shouldBe "auth_token"
+      appConfig.ifEnvironment shouldBe "ist0"
+    }
+  }

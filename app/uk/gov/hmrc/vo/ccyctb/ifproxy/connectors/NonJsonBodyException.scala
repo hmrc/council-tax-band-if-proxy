@@ -14,28 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy
-
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
+package uk.gov.hmrc.vo.ccyctb.ifproxy.connectors
 
 /**
   * @author Yuriy Tumakha
   */
-trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach:
-  this: Suite =>
-
-  val wireMockServer = WireMockServer(WireMockConfiguration
-    .options()
-    .dynamicPort())
-
-  wireMockServer.start()
-
-  override def beforeEach(): Unit =
-    wireMockServer.resetAll()
-    super.beforeEach()
-
-  override def afterAll(): Unit =
-    super.afterAll()
-    wireMockServer.stop()
+final case class NonJsonBodyException() extends Exception

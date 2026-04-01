@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.connectors
+package uk.gov.hmrc.vo.ccyctb.ifproxy.connectors
 
 import play.api.Logging
 import play.api.http.Status.{BAD_REQUEST, CREATED, OK}
 import play.api.libs.json.{JsValue, Json}
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.mvc.*
 import play.api.mvc.Results.{BadRequest, Status}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HttpVerbs.{GET, POST}
-import uk.gov.hmrc.http.{HttpReads, HttpResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendHeaderCarrierProvider
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
+import java.net.URI
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author Yuriy Tumakha
   */
 class IFConnector @Inject() (
-  httpClient: DefaultHttpClient
+  httpClientV2: HttpClientV2
 )(implicit ec: ExecutionContext
 ) extends BackendHeaderCarrierProvider
   with HeadersHelpers
@@ -43,14 +46,19 @@ class IFConnector @Inject() (
 
   private val skipResponseHeaders = Set("Content-Type", "Content-Length", "Transfer-Encoding")
 
-  def forwardGetRequest(url: String, headers: Seq[(String, String)])(using request: Request[AnyContent]): Future[Result] =
-    forwardRequest(GET, url, headers)
-
-  def forwardPostRequest(url: String, headers: Seq[(String, String)])(using request: Request[AnyContent]): Future[Result] =
-    forwardRequest(POST, url, headers)
-
   private def requestQueryString(using request: Request[AnyContent]): String =
     Option(request.target.queryString).filter(_.nonEmpty).map(s => s"?$s").getOrElse("")
+
+  private def requestBodyAsJson(using request: Request[AnyContent]): Future[JsValue] =
+    request.body.asJson match
+      case Some(json) => Future.successful(json)
+      case None       => Future.failed(NonJsonBodyException())
+
+  private def buildRequest(httpVerb: String)(using request: Request[AnyContent]): (HttpClientV2, String) => Future[RequestBuilder] =
+    (client: HttpClientV2, url: String) =>
+      httpVerb match
+        case GET  => Future.successful(client.get(URI(url + requestQueryString).toURL))
+        case POST => requestBodyAsJson.map(json => client.post(url"$url").withBody(json))
 
   private def forwardRequest(
     httpVerb: String,
@@ -62,33 +70,30 @@ class IFConnector @Inject() (
 
     logger.info(s"$httpVerb $url \nCorrelationId: $correlationId")
 
-    // The default HttpReads will wrap the response in an exception and make the body inaccessible
-    given responseReads: HttpReads[HttpResponse] = (_, _, response: HttpResponse) => response
+    buildRequest(httpVerb)(httpClientV2, url).flatMap { requestBuilder =>
+      requestBuilder.setHeader(headers*).execute[HttpResponse].map { response =>
+        val body       = response.body
+        val logMessage = s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)}"
 
-    val result =
-      if httpVerb == GET then
-        httpClient.GET[HttpResponse](url + requestQueryString, Seq.empty, headers)
-      else
-        request.body.asJson match
-          case Some(json) => httpClient.POST[JsValue, HttpResponse](url, json, headers)
-          case None       => Future.failed(NonJsonBodyException())
+        if response.status == OK || response.status == CREATED then
+          logger.info(logMessage)
+        else
+          logger.warn(logMessage)
 
-    result.map { response =>
-      val body       = response.body
-      val logMessage = s"BST response ${response.status} $url \nCorrelationId: $correlationId \nHEADERS: ${toPrintableResponseHeaders(response)}"
+        val responseHeaders = headersMapToSeq(response.headers).filter(h => !skipResponseHeaders.exists(_.equalsIgnoreCase(h._1))) :+ "API_URL" -> url
 
-      if response.status == OK || response.status == CREATED then
-        logger.info(logMessage)
-      else
-        logger.warn(logMessage)
-
-      val responseHeaders = headersMapToSeq(response.headers).filter(h => !skipResponseHeaders.exists(_.equalsIgnoreCase(h._1))) :+ "API_URL" -> url
-
-      Status(response.status)(body)
-        .withHeaders(responseHeaders*)
+        Status(response.status)(body)
+          .withHeaders(responseHeaders*)
+      }
     }.recoverWith { exception =>
       logger.warn(s"Failed $httpVerb $url \nCorrelationId: $correlationId \nException: ${exception.getClass.getName} ${exception.getMessage}")
       Future.failed(exception)
     }.recover {
       case _: NonJsonBodyException => BadRequest(Json.obj("statusCode" -> BAD_REQUEST, "message" -> "JSON body is expected in request"))
     }
+
+  def forwardGetRequest(url: String, headers: Seq[(String, String)])(using request: Request[AnyContent]): Future[Result] =
+    forwardRequest(GET, url, headers)
+
+  def forwardPostRequest(url: String, headers: Seq[(String, String)])(using request: Request[AnyContent]): Future[Result] =
+    forwardRequest(POST, url, headers)

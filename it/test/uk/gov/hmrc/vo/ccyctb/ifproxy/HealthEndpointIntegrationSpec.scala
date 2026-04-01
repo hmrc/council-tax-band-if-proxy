@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ccyctbifproxy.config
+package uk.gov.hmrc.vo.ccyctb.ifproxy
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.vo.integration.test.BaseServerSpec
 
-@Singleton
-class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig):
+class HealthEndpointIntegrationSpec extends BaseServerSpec:
 
-  val appName: String = config.get[String]("appName")
+  override def fakeApplication(): Application =
+    GuiceApplicationBuilder()
+      .configure("metrics.enabled" -> false)
+      .build()
 
-  // Integration Framework
-  val ifBaseUrl: String     = servicesConfig.baseUrl("if")
-  val ifToken: String       = config.get[String]("microservice.services.if.token")
-  val ifEnvironment: String = config.get[String]("microservice.services.if.environment")
+  "service health endpoint" should {
+    "respond with 200 status" in {
+      val response =
+        wsUrl("/ping/ping")
+          .get()
+          .futureValue
+
+      response.status shouldBe 200
+    }
+  }
