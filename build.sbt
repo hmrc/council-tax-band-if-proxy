@@ -3,7 +3,7 @@ import uk.gov.hmrc.DefaultBuildSettings.{itSettings, targetJvm}
 val appName = "council-tax-band-if-proxy"
 
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "3.8.3"
+ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / targetJvm := "jvm-21"
 ThisBuild / scalacOptions ++= Seq("-feature", "-Wconf:msg=Flag .* set repeatedly:s")
 
