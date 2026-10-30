@@ -21,7 +21,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.vo.ccyctb.ifproxy.config.AppConfig
 import uk.gov.hmrc.vo.ccyctb.ifproxy.connectors.{HeadersHelpers, IFConnector}
 
-import javax.inject.{Inject, Singleton}
+import jakarta.inject.{Inject, Singleton}
 
 /**
   * @author Yuriy Tumakha
