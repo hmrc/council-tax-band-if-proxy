@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendHeaderCarrierProvider
 
 import java.net.URI
-import javax.inject.Inject
+import jakarta.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 /**

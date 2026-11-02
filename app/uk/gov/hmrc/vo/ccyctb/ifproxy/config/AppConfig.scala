@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.vo.ccyctb.ifproxy.config
 
-import javax.inject.{Inject, Singleton}
+import jakarta.inject.{Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
